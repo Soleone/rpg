@@ -1,0 +1,16 @@
+= RPG library
+
+A simple Ruby library for role playing games.
+
+== Implemented functionality
+
+* Character class with name and basic traits like :strength, :agility, :charisma, :intelligence, :constitution
+* Inventory for keeping tracks of items
+* Dice rolling, 1.d6.roll => 1-6
+* Weapons with random damage, e.g. 1d6+1 (like Dungeons & Dragons or The Dark Eye)
+
+== TODO
+
+* Fighting (hit chance, evading, blocking, armor)
+* Specializations
+* much more
