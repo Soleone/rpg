@@ -3,9 +3,14 @@ module RPG
   class Hit < Event
     attr_reader :character, :attacker, :damage
 
-    def initialize(character, attacker, damage)
-      super(attacker)
+    def initialize(character, attacker, damage, critical = false)
+      super(:hit, character, attacker)
       @character, @attacker, @damage = character, attacker, damage
+      @critical = critical
+    end
+    
+    def critical?
+      @critical
     end
   end
 
@@ -16,21 +21,23 @@ module RPG
     # 2. tank tolls for evade
     # 3. tank takes damage if not evaded
     def fight(character)
-      puts "#{name} fights #{character.name}"
+      RPG.output "#{name} attacks #{character.name}"
       
-      if not roll(:attack)
-        on_attack_fail
+      attack_roll = roll(:attack)
+      if attack_roll.fail?
+        Event.fire(:attack_fail, self)
         return
       end
-      on_attack_success
-      
-      if character.roll(:evade)
-        character.on_evade
+      Event.fire(:attack_success, self)
+
+      evade_roll = character.roll(:evade)
+      if evade_roll.success?
+        Event.fire(:evade, character)
         return
       end
       
-      hit = Hit.new(character, self, damage)      
-      character.on_hit(hit)
+      critical_hit = attack_roll.epic_win?
+      Hit.fire(character, self, damage, critical_hit)
     end
 
     # fight till the death
@@ -42,50 +49,47 @@ module RPG
       end
     end
 
+    # when dealing a successful hit or when being hit
     def on_hit(hit)
-      actual_damage = hit.damage.roll
-      decrease :health, actual_damage
-      puts "#{name} got hit by #{hit.attacker.name} for #{actual_damage} damage (#{hit.damage}) and has #{health} health left"
-      on_death if dead?
+      if hit.attacker == self
+        RPG.output "#{self.name} landed a Critical Hit" if hit.critical?
+        return
+      end
+      
+      damage_roll = hit.damage.roll
+      critical_modifier = hit.critical? ? 2 : 1
+      final_damage = damage_roll.to_i * critical_modifier
+      decrease :health, final_damage
+      RPG.output "#{name} got#{' critically' if hit.critical?} hit by #{hit.attacker.name} for #{final_damage} damage (#{hit.damage}) and has #{health} health left"
+      Event.fire(:death, self) if dead?
     end
     
-    def on_death
-      puts "#{name} dies#{' in pain' if health < -5}"
+    def on_event(event)
+      case event.type
+      when :attack_success
+      
+      when :attack_fail
+        RPG.output "#{name} fails to hit with his attack"
+      when :hit
+
+      when :death
+        RPG.output "#{name} dies#{' in pain' if health < -5}"
+      when :evade
+        RPG.output "#{name} evades the attack"        
+      end
     end
     
     def dead?
       health <= 0
     end
     
-    def on_evade
-      puts "#{name} evades the attack"
-    end
-        
-    def on_attack_success
-      
-    end
-    
-    def on_attack_fail
-      puts "#{name} fails to hit with his attack"  
-    end
-
     
     def evade
-      (agility + strength + constitution) / 3
+      (strength + agility + constitution) / 3
     end
     
     def attack
-      (agility + strength) / 2
-    end
-        
-    def roll(type, modifier = 0)
-      return unless %w[attack evade].include?(type.to_s)
-
-      dice = 1.d20 + modifier
-      roll_value = dice.roll
-      character_value = send(type)
-      puts "[#{type.to_s.capitalize}] Rolled <#{roll_value}> with #{dice.to_s} (needed #{character_value} or less)"
-      roll_value <= character_value
+      (strength + agility + intelligence) / 3
     end
   end
 

@@ -47,6 +47,18 @@ module RPG
       new_value = max if max && new_value > max
       instance_variable_set("@#{attribute}", new_value)
     end
+    
+    def roll(type, modifier = 0)
+      raise "Can't make a roll for type '#{type}'" unless %w[attack evade].include?(type.to_s)
+
+      character_value = send(type)
+      dice = 1.d20 + modifier
+      dice_roll = dice.roll(character_value)
+      RPG.output "<#{type.to_s.capitalize}> Rolled #{dice_roll} (needed #{character_value} or less)"
+      # dice_roll.to_i <= character_value
+      dice_roll
+    end
+    
   end
   
 end

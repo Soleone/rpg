@@ -1,5 +1,6 @@
 require 'forwardable'
 require 'yaml'
+require 'logger'
 
 lib = %w[serializable dice event fighting character core_extensions]
 lib.each do |file|
@@ -8,6 +9,30 @@ end
 
 
 module RPG
+  
+  class SimpleLogger < Logger
+    def initialize(output = STDOUT)
+      super(output)
+    end
+    def format_message(severity, timestamp, progname, msg)
+      "#{msg}\n"
+    end
+    
+    def puts(text)
+      info(text)
+    end
+  end
+  
+  @logger = SimpleLogger.new
+  
+  def self.output=(logger)
+    @logger = logger
+  end
+  
+  def self.output(text)
+    @logger.puts(text)
+  end
+  
   
   class Inventory
     extend Forwardable

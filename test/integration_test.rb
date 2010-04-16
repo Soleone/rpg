@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/test_helper'
 include RPG
 
+RPG.output = RPG::SimpleLogger.new
+
 class IntegrationTest < Test::Unit::TestCase
   
   def setup

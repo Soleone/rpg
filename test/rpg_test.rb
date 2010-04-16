@@ -63,33 +63,33 @@ class DiceTest < Test::Unit::TestCase
   def test_lazy_rolling
     dice = Dice.new(4, +1)
     roll = dice.roll
-    assert_between(dice.roll, 2, 5)
+    assert_between(dice.roll.to_i, 2, 5)
   end
   
   def test_fixnum_extension
     roll = 1.d6.roll
-    assert_between(roll, 1, 6)
+    assert_between(roll.to_i, 1, 6)
   end
   
   
   def test_roll_d20
     roll = Dice.roll
-    assert_between(roll, 1, 20)
+    assert_between(roll.to_i, 1, 20)
   end
   
   def test_roll_d6
     roll = Dice.roll(6)
-    assert_between(roll, 1, 6)
+    assert_between(roll.to_i, 1, 6)
   end
   
   def test_roll_d4
     roll = Dice.roll(4)
-    assert_between(roll, 1, 4)
+    assert_between(roll.to_i, 1, 4)
   end
   
   def test_roll_d2
     roll = Dice.roll(2)
-    assert_between(roll, 1, 2)
+    assert_between(roll.to_i, 1, 2)
   end
   
   def test_to_range
@@ -97,6 +97,16 @@ class DiceTest < Test::Unit::TestCase
     assert_equal 3..8, (1.d6+2).to_range
     assert_equal 2..21, (1.d20+1).to_range
     assert_equal -6..-1, (1.d6-7).to_range
+    assert_equal 2..12, 2.d6.to_range
+    assert_equal 10..35, (5.d6 + 5).to_range
+  end
+  
+  def test_epic_win_or_fail
+    100.times do
+      roll = 1.d6.roll
+      assert roll.epic_fail? if roll == 1
+      assert roll.epic_win? if roll == 6
+    end
   end
 end
 
@@ -114,7 +124,7 @@ class WeaponTest < Test::Unit::TestCase
   def test_damage_is_randomly_rolled
     100.times do
       roll = @sword.damage.roll
-      assert_between(roll, 1, 7)
+      assert_between(roll.to_i, 1, 7)
     end
   end
 end
@@ -138,3 +148,23 @@ class InventoryTest < Test::Unit::TestCase
     assert_equal [@sword], @inventory.weapons
   end
 end
+
+
+class EventTest < Test::Unit::TestCase
+  def setup
+    @goblin = characters('goblin')
+    @tank = characters('tank')
+    @club = Weapon.new("Club", 1.d4+1)
+  end
+  
+  def test_attack_success_creates_event
+    @tank.increase :strength, 20, 20
+    @tank.increase :agility, 20, 20
+    @tank.increase :intelligence, 20, 20    
+    @tank.fight(@goblin)
+    assert_equal 1, Event.all(:attack_success).size
+    event = Event.all(:attack_success).first
+    assert_equal [@tank], event.listeners
+  end
+end
+
