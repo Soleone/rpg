@@ -1,0 +1,15 @@
+tank:
+  name: Frank
+  strength: 15
+  agility:  10
+  charisma: 11
+  intelligence: 8
+  constitution: 16
+  
+goblin:
+  name: Goblin
+  strength: 12
+  agility:  14
+  charisma: 8
+  intelligence: 10
+  constitution: 12

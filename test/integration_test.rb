@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/test_helper'
+include RPG
 
 class IntegrationTest < Test::Unit::TestCase
+  
   def setup
     @hero  = RPG::Character.new("Hero")
     @enemy = RPG::Character.new("Enemy")
@@ -18,6 +20,13 @@ class IntegrationTest < Test::Unit::TestCase
   end
   
   def test_fight
-    # TODO: round 1... fight!
+    goblin, tank = characters('goblin'), characters('tank')
+    goblin.fight(tank)
+  end
+  
+  def test_duel
+    goblin, tank = characters('goblin'), characters('tank')
+    tank.equip(@sword)
+    tank.duel(goblin)
   end
 end

@@ -1,9 +1,10 @@
 require File.dirname(__FILE__) + '/test_helper'
+include RPG
 
 class CharacterTest < Test::Unit::TestCase
   def setup
-    @char = RPG::Character.new("Someone")
-    @sword = RPG::Weapon.new("Sword", 1.d6+1)
+    @char = Character.new("Someone")
+    @sword = Weapon.new("Sword", 1.d6+1)
   end  
 
   def has_name
@@ -15,6 +16,7 @@ class CharacterTest < Test::Unit::TestCase
     assert @char.agility
     assert @char.constitution
     assert @char.intelligence
+    assert @char.charisma
   end
   
   def test_has_inventory
@@ -37,20 +39,29 @@ class CharacterTest < Test::Unit::TestCase
   end
   
   def test_damage_is_based_on_strength_when_no_weapon_equipped
-    assert_equal RPG::Dice.new(2), @char.damage
+    assert_equal Dice.new(2), @char.damage
     @char.strength = 16
-    assert_equal RPG::Dice.new(4), @char.damage
+    assert_equal Dice.new(4), @char.damage
     @char.strength = 19
-    assert_equal RPG::Dice.new(4), @char.damage
+    assert_equal Dice.new(4), @char.damage
     @char.strength = 20
-    assert_equal RPG::Dice.new(5), @char.damage    
+    assert_equal Dice.new(5), @char.damage    
+  end
+  
+  def test_deserialize_from_yml
+    goblin = Character.from_yaml(CHARACTERS_PATH, 'goblin')
+    assert_equal 12, goblin.strength
+    assert_equal 14, goblin.agility
+    assert_equal 10, goblin.intelligence
+    assert_equal 8, goblin.charisma
+    assert_equal 12, goblin.constitution
   end
 end
 
 
 class DiceTest < Test::Unit::TestCase
   def test_lazy_rolling
-    dice = RPG::Dice.new(4, +1)
+    dice = Dice.new(4, +1)
     roll = dice.roll
     assert_between(dice.roll, 2, 5)
   end
@@ -62,34 +73,41 @@ class DiceTest < Test::Unit::TestCase
   
   
   def test_roll_d20
-    roll = RPG::Dice.roll
+    roll = Dice.roll
     assert_between(roll, 1, 20)
   end
   
   def test_roll_d6
-    roll = RPG::Dice.roll(6)
+    roll = Dice.roll(6)
     assert_between(roll, 1, 6)
   end
   
   def test_roll_d4
-    roll = RPG::Dice.roll(4)
+    roll = Dice.roll(4)
     assert_between(roll, 1, 4)
   end
   
   def test_roll_d2
-    roll = RPG::Dice.roll(2)
+    roll = Dice.roll(2)
     assert_between(roll, 1, 2)
+  end
+  
+  def test_to_range
+    assert_equal 1..6, 1.d6.to_range
+    assert_equal 3..8, (1.d6+2).to_range
+    assert_equal 2..21, (1.d20+1).to_range
+    assert_equal -6..-1, (1.d6-7).to_range
   end
 end
 
 
 class WeaponTest < Test::Unit::TestCase
   def setup
-    @sword = RPG::Weapon.new("Sword", 1.d6+1)
+    @sword = Weapon.new("Sword", 1.d6+1)
   end
 
   def test_damage_is_a_dice_roll
-    assert_equal RPG::Dice, @sword.damage.class
+    assert_equal Dice, @sword.damage.class
     assert_equal "1d6+1", @sword.damage.to_s    
   end
   
@@ -104,9 +122,9 @@ end
 
 class InventoryTest < Test::Unit::TestCase
   def setup
-    @char = RPG::Character.new("Someone")
-    @inventory = RPG::Inventory.new(@char)
-    @sword = RPG::Weapon.new("Sword", 1.d6+1)
+    @char = Character.new("Someone")
+    @inventory = Inventory.new(@char)
+    @sword = Weapon.new("Sword", 1.d6+1)
   end
   
   def test_can_add_items
