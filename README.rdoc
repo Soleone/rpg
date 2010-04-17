@@ -4,11 +4,12 @@ A simple Ruby library for role playing games.
 
 == Implemented functionality
 
-* Character class with name and basic traits like :strength, :agility, :charisma, :intelligence, :constitution
+* Character class with name and basic attributes (aka "traits") like :strength, :agility, :charisma, :intelligence, :constitution
+* Yaml Serialization
 * Inventory for keeping tracks of items
-* Dice rolling, 1.d6.roll => 1-6
+* Dice rolling, e.g. 1.d6.roll => 1-6
 * Weapons with random damage, e.g. 1d6+1 (like Dungeons & Dragons or The Dark Eye)
-
+* Events (e.g. successful evade, hit, death)
 
 == Basic rules
 
@@ -36,8 +37,10 @@ There are other sub-attributes (TODO: find better term) like:
 * Fighting (blocking, armor)
 * Specializations
 * Maps
+* Web Service interface (e.g. creating characters, starting fights)
 * much more
 
 == IDEAS
 
 * Use URLs as levels: parse the resources and convert them to maps somehow with <a> links being doors to other maps
+* IRC interface
