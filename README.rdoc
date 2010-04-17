@@ -15,7 +15,7 @@ A simple Ruby library for role playing games.
 
 === Dice Rolls
 
-In order to do a successful attack or evade the character rolls a D20. The action is successful if the result is lower or equal to it's associated attribute value (e.g. "attack" or "evade"). That means low dice rolls are actually a good thing, in fact if you roll a 1 you get a perfect bonus (e.g. double damage for attack rolls). On the other side rolling a 20 is an epic for for any action roll and has various bad consequences (e.g. chance to drop weapon).
+In order to do a successful attack or evade the character rolls a D20. The action is successful if the result is lower or equal to it's associated attribute value (e.g. "attack" or "evade"). That means low dice rolls are actually a good thing, in fact if you roll a 1 you get a perfect bonus (e.g. double damage for attack rolls). On the other side rolling a 20 is an epic fail for for any action roll and has various bad consequences (e.g. chance to drop weapon).
 
 === Characters
 
